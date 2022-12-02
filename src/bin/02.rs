@@ -2,15 +2,14 @@
 enum Play {
     Rock,
     Paper,
-    Scissor
+    Scissor,
 }
-
 
 use std::str::FromStr;
 #[derive(Debug)]
 enum ParsePlayError {
-        ParseErr
-    }
+    ParseErr,
+}
 
 impl FromStr for Play {
     type Err = ParsePlayError;
@@ -27,11 +26,59 @@ impl FromStr for Play {
     }
 }
 
+fn map_line(line: &str) -> Option<(Play, Play)> {
+    let spl = line.split_once(' ');
+    match spl {
+        Some((f, l)) => match Play::from_str(f) {
+            Ok(fp) => match Play::from_str(l) {
+                Ok(lp) => Some((fp, lp)),
+                Err(_) => None,
+            },
+            Err(_) => None,
+        },
+        None => None,
+    }
+}
+
+#[derive(Debug)]
+enum Winner {
+    First,
+    Second,
+    Draw,
+}
+
+fn winner((first, second): &(Play, Play)) -> Winner {
+    match (first, second) {
+        (Play::Rock, Play::Scissor) => Winner::First,
+        (Play::Rock, Play::Paper) => Winner::Second,
+        (Play::Paper, Play::Rock) => Winner::First,
+        (Play::Paper, Play::Scissor) => Winner::Second,
+        (Play::Scissor, Play::Paper) => Winner::First,
+        (Play::Scissor, Play::Rock) => Winner::Second,
+        _ => Winner::Draw,
+    }
+}
+
+fn score_part_one(t: &(Play, Play)) -> u32 {
+    let result_points = match winner(&t) {
+        Winner::First => 0,
+        Winner::Draw => 3,
+        Winner::Second => 6,
+    };
+    let pick_points = match t.1 {
+        Play::Rock => 1,
+        Play::Paper => 2,
+        Play::Scissor => 3,
+    };
+    pick_points + result_points
+}
+
 pub fn part_one(input: &str) -> Option<u32> {
-    let plays : Vec<Play> = input.split('\n')
-        .map(|s| s.split_once(' ').map(|(x,y)| Play::from_str(x)))
-        .collect();
-    Some(32)
+    let plays = input
+        .split('\n')
+        .map(|line| map_line(line).expect("mapping line correctly"));
+    let scores = plays.map(|t| score_part_one(&t));
+    Some(scores.sum())
 }
 
 pub fn part_two(input: &str) -> Option<u32> {
@@ -51,7 +98,7 @@ mod tests {
     #[test]
     fn test_part_one() {
         let input = advent_of_code::read_file("examples", 2);
-        assert_eq!(part_one(&input), None);
+        assert_eq!(part_one(&input), Some(15));
     }
 
     #[test]
