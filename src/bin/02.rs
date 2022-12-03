@@ -10,9 +10,9 @@ use Play::*;
 use std::str::FromStr;
 #[derive(Debug)]
 enum ParseError {
-    ParsePlay,
-    ParseWinner,
-    ParsePair,
+    Play,
+    Winner,
+    Pair,
 }
 
 impl FromStr for Play {
