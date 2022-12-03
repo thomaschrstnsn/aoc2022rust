@@ -30,17 +30,15 @@ impl FromStr for Play {
     }
 }
 
-fn map_line_part1(line: &str) -> Option<(Play, Play)> {
+fn map_line_part1(line: &str) -> Result<(Play, Play), ParseError> {
     let spl = line.split_once(' ');
     match spl {
-        Some((f, l)) => match Play::from_str(f) {
-            Ok(fp) => match Play::from_str(l) {
-                Ok(lp) => Some((fp, lp)),
-                Err(_) => None,
-            },
-            Err(_) => None,
-        },
-        None => None,
+        Some((f, l)) => {
+            let l = Play::from_str(l)?;
+            let f = Play::from_str(f)?;
+            Ok((f, l))
+        }
+        None => Err(ParseError::ParsePair),
     }
 }
 
