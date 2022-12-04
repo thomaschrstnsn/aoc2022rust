@@ -25,7 +25,7 @@ impl FromStr for Play {
             "X" => Ok(Rock),
             "Y" => Ok(Paper),
             "Z" => Ok(Scissor),
-            _ => Err(ParseError::ParsePlay),
+            _ => Err(ParseError::Play),
         }
     }
 }
@@ -38,7 +38,7 @@ fn map_line_part1(line: &str) -> Result<(Play, Play), ParseError> {
             let f = Play::from_str(f)?;
             Ok((f, l))
         }
-        None => Err(ParseError::ParsePair),
+        None => Err(ParseError::Pair),
     }
 }
 
@@ -58,7 +58,7 @@ impl FromStr for Winner {
             "X" => Ok(First),
             "Y" => Ok(Draw),
             "Z" => Ok(Second),
-            _ => Err(ParseError::ParseWinner),
+            _ => Err(ParseError::Winner),
         }
     }
 }
@@ -105,7 +105,7 @@ fn map_line_part2(line: &str) -> Result<(Play, Winner), ParseError> {
             let l = Winner::from_str(l)?;
             Ok((f, l))
         }
-        None => Err(ParseError::ParsePair),
+        None => Err(ParseError::Pair),
     }
 }
 
