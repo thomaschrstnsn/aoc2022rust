@@ -41,8 +41,16 @@ pub fn part_one(input: &str) -> Option<u32> {
     Some(scores.sum())
 }
 
+use itertools::Itertools;
 pub fn part_two(input: &str) -> Option<u32> {
-    None
+    let xs = input.lines().tuples().map((|(a,b,c))| {
+        let a_set = str_as_hashset(a);
+        let b_set = str_as_hashset(b);
+        let c_set = str_as_hashset(c);
+        let overlap1:HashSet<char> = a_set.intersection(&b_set).collect();
+        let overlap2 = overlap1.intersection(&c_set);
+        overlap2.next().copied()
+    });
 }
 
 fn main() {
@@ -84,6 +92,6 @@ mod tests {
     #[test]
     fn test_part_two() {
         let input = advent_of_code::read_file("examples", 3);
-        assert_eq!(part_two(&input), None);
+        assert_eq!(part_two(&input), Some(70));
     }
 }
