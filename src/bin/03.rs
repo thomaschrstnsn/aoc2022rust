@@ -43,14 +43,19 @@ pub fn part_one(input: &str) -> Option<u32> {
 
 use itertools::Itertools;
 pub fn part_two(input: &str) -> Option<u32> {
-    let xs = input.lines().tuples().map((|(a,b,c))| {
-        let a_set = str_as_hashset(a);
-        let b_set = str_as_hashset(b);
-        let c_set = str_as_hashset(c);
-        let overlap1:HashSet<char> = a_set.intersection(&b_set).collect();
-        let overlap2 = overlap1.intersection(&c_set);
-        overlap2.next().copied()
-    });
+    let scores = input
+        .lines()
+        .tuples()
+        .map(|(a, b, c)| {
+            let a_set = str_as_hashset(a);
+            let b_set = str_as_hashset(b);
+            let c_set = str_as_hashset(c);
+            let overlap1: HashSet<char> = a_set.intersection(&b_set).copied().collect();
+            let mut overlap2 = overlap1.intersection(&c_set);
+            overlap2.next().copied().expect("should have one overlap")
+        })
+        .map(score);
+    Some(scores.sum())
 }
 
 fn main() {
