@@ -3,7 +3,7 @@ use nom::{
     bytes::complete::tag,
     character::complete::{self, anychar, digit1, multispace1, newline, space1},
     multi::{count, many1, separated_list1},
-    sequence::{preceded, terminated},
+    sequence::{pair, preceded, terminated},
     IResult,
 };
 
@@ -44,6 +44,31 @@ fn parse_crates(input: &str) -> IResult<&str, Vec<SupplyStack>> {
     Ok((input, result_crates))
 }
 
+#[derive(Debug, PartialEq)]
+struct Move {
+    count: u32,
+    from: u32,
+    to: u32,
+}
+
+fn parse_single_move(input: &str) -> IResult<&str, Move> {
+    let (input, _) = tag("move ")(input)?;
+    let (input, count) = complete::u32(input)?;
+    let (input, _) = tag(" from ")(input)?;
+    let (input, from) = complete::u32(input)?;
+    let (input, _) = tag(" to ")(input)?;
+    let (input, to) = complete::u32(input)?;
+    Ok((input, Move { count, from, to }))
+}
+
+fn parse_moves(input: &str) -> IResult<&str, Vec<Move>> {
+    separated_list1(newline, parse_single_move)(input)
+}
+
+fn parse_puzzle(input: &str) -> IResult<&str, (Vec<SupplyStack>, Vec<Move>)> {
+    pair(parse_crates, parse_moves)(input)
+}
+
 pub fn part_one(input: &str) -> Option<String> {
     None
 }
@@ -74,6 +99,43 @@ mod tests {
         assert_eq!(
             parsed,
             Ok(("", vec![vec!['Z', 'N'], vec!['M', 'C', 'D'], vec!['P']]))
+        )
+    }
+
+    #[test]
+    fn test_parse_moves() {
+        let input = advent_of_code::read_file("examples", 5)
+            .lines()
+            .skip(5)
+            .join("\n");
+        let parsed = parse_moves(&input);
+        assert_eq!(
+            parsed,
+            Ok((
+                "",
+                vec![
+                    Move {
+                        count: 1,
+                        from: 2,
+                        to: 1
+                    },
+                    Move {
+                        count: 3,
+                        from: 1,
+                        to: 3
+                    },
+                    Move {
+                        count: 2,
+                        from: 2,
+                        to: 1
+                    },
+                    Move {
+                        count: 1,
+                        from: 1,
+                        to: 2
+                    }
+                ]
+            ))
         )
     }
 
