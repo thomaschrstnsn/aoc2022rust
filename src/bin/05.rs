@@ -31,7 +31,7 @@ fn parse_crates(input: &str) -> IResult<&str, Vec<SupplyStack>> {
     let (input, _) = multispace1(input)?;
 
     let mut result_crates: Vec<SupplyStack> = vec![];
-    for _ in horizontal_crates.iter() {
+    for _ in 0..horizontal_crates[0].len() {
         result_crates.push(vec![])
     }
     for vec in horizontal_crates.iter().rev() {
@@ -70,11 +70,51 @@ fn parse_puzzle(input: &str) -> IResult<&str, (Vec<SupplyStack>, Vec<Move>)> {
 }
 
 pub fn part_one(input: &str) -> Option<String> {
-    None
+    let (rest, (mut stacks, moves)) = parse_puzzle(input).expect("parses correctly");
+    if !rest.is_empty() {
+        panic!("got remainder in parse: {}", rest)
+    }
+
+    for mov in moves {
+        let from_index = (mov.from - 1) as usize;
+        let len = stacks[from_index].len();
+        let range = (len - (mov.count as usize))..;
+
+        let drain = stacks[from_index].drain(range).rev().collect::<Vec<char>>();
+
+        let to_index = (mov.to - 1) as usize;
+        for c in drain {
+            stacks[to_index].push(c);
+        }
+    }
+
+    let result: String = stacks.iter_mut().filter_map(|s| s.pop()).collect();
+
+    Some(result)
 }
 
 pub fn part_two(input: &str) -> Option<String> {
-    None
+    let (rest, (mut stacks, moves)) = parse_puzzle(input).expect("parses correctly");
+    if !rest.is_empty() {
+        panic!("got remainder in parse: {}", rest)
+    }
+
+    for mov in moves {
+        let from_index = (mov.from - 1) as usize;
+        let len = stacks[from_index].len();
+        let range = (len - (mov.count as usize))..;
+
+        let drain = stacks[from_index].drain(range).collect::<Vec<char>>();
+
+        let to_index = (mov.to - 1) as usize;
+        for c in drain {
+            stacks[to_index].push(c);
+        }
+    }
+
+    let result: String = stacks.iter_mut().filter_map(|s| s.pop()).collect();
+
+    Some(result)
 }
 
 fn main() {
@@ -148,6 +188,6 @@ mod tests {
     #[test]
     fn test_part_two() {
         let input = advent_of_code::read_file("examples", 5);
-        assert_eq!(part_two(&input), None);
+        assert_eq!(part_two(&input), Some("MCD".to_owned()));
     }
 }
