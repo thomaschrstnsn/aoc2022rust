@@ -48,6 +48,8 @@
 
         shellHook = ''
           ${pkgs.rustToolchain}/bin/cargo --version
+
+          export PATH=$PATH:~/.cargo/bin
         '';
       };
     });
