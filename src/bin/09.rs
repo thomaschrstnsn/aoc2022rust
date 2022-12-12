@@ -1,9 +1,5 @@
-use std::collections::HashSet;
-
 use itertools::Itertools;
 use nom::{
-    branch::alt,
-    bytes::complete::tag,
     character::complete::{self, newline, one_of, space1},
     multi::separated_list1,
     IResult,
@@ -126,7 +122,34 @@ pub fn part_one(input: &str) -> Option<u32> {
 }
 
 pub fn part_two(input: &str) -> Option<u32> {
-    None
+    let (remaining, motions) = parse_motions(input).expect("parses");
+    if !remaining.is_empty() {
+        panic!("did not fully parse, remaining: {}", input);
+    }
+    let mut last_knot_visits: Vec<TwoD> = Vec::new();
+    let mut knots = Vec::new();
+    for _i in 0..10 {
+        knots.push((0, 0));
+    }
+
+    for motion in motions {
+        for head_move in head_moves(&motion) {
+            knots[0].add(&head_move);
+
+            let len = knots.len();
+            for index in 0..len - 1 {
+                let head = knots[index];
+                let tail = &mut knots[index + 1];
+                tail_move(tail, &head);
+            }
+
+            last_knot_visits.push(knots.last().expect("must have a last").to_owned());
+        }
+    }
+
+    let visited = last_knot_visits.iter().unique().count();
+
+    Some(visited as u32)
 }
 
 fn main() {
@@ -235,7 +258,14 @@ mod tests {
 
     #[test]
     fn test_part_two() {
-        let input = advent_of_code::read_file("examples", 9);
-        assert_eq!(part_two(&input), None);
+        let input = r#"R 5
+U 8
+L 8
+D 3
+R 17
+D 10
+L 25
+U 20"#;
+        assert_eq!(part_two(input), Some(36));
     }
 }
