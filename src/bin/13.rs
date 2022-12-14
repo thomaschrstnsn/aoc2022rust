@@ -1,8 +1,10 @@
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 enum Packet {
     Integer(u32),
     List(Vec<Packet>),
 }
+
+use std::cmp;
 
 use nom::{
     branch::alt,
@@ -97,7 +99,48 @@ pub fn part_one(input: &str) -> Option<u32> {
 }
 
 pub fn part_two(input: &str) -> Option<u32> {
-    None
+    let (remaining, packets) = parse_packet_pairs(input).expect("parses correctly");
+    if !remaining.is_empty() {
+        panic!(
+            "did not fully parse, remaining: {}...",
+            input.substring(0, 20)
+        );
+    }
+
+    let mut all_packets: Vec<Packet> = packets
+        .into_iter()
+        .flat_map(|(left, right)| [left, right])
+        .collect();
+
+    let dist1 = List(vec![List(vec![Integer(2)])]);
+    let dist2 = List(vec![List(vec![Integer(6)])]);
+
+    all_packets.push(dist1.clone());
+    all_packets.push(dist2.clone());
+
+    all_packets.sort_by(|a, b| match is_in_right_order(a, b) {
+        Some(first) => {
+            if first {
+                cmp::Ordering::Less
+            } else {
+                cmp::Ordering::Greater
+            }
+        }
+        None => cmp::Ordering::Equal,
+    });
+
+    let i1 = all_packets
+        .iter()
+        .position(|p| p == &dist1)
+        .expect("dist1 should be there") as u32
+        + 1;
+    let i2 = all_packets
+        .iter()
+        .position(|p| p == &dist2)
+        .expect("dist2 should be there") as u32
+        + 1;
+
+    Some(i1 * i2)
 }
 
 fn main() {
@@ -146,6 +189,6 @@ mod tests {
     #[test]
     fn test_part_two() {
         let input = advent_of_code::read_file("examples", 13);
-        assert_eq!(part_two(&input), None);
+        assert_eq!(part_two(&input), Some(140));
     }
 }
