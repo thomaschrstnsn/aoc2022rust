@@ -48,7 +48,9 @@
 
         shellHook = ''
           ${pkgs.rustToolchain}/bin/cargo --version
-
+          
+          export RUST_SRC_PATH="${pkgs.rust.packages.stable.rustPlatform.rustLibSrc}";
+          
           export PATH=$PATH:~/.cargo/bin
         '';
       };
