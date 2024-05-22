@@ -1,0 +1,4 @@
+# toolchain.toml
+[toolchain]
+channel = "stable"
+components = [ "rustfmt", "rust-src", "rust-std", "rust-analyzer", "rustfmt" ]
